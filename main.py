@@ -6,7 +6,7 @@ import visdom
 from params import scale_reward
 
 # render the scene or not
-e_render = False
+e_render = True
 
 food_reward = 10.
 poison_reward = -1.
@@ -32,7 +32,7 @@ batch_size = 1000
 
 n_episode = 10000
 max_steps = 1000
-episodes_before_train = 100
+episodes_before_train = 500
 
 win = None
 param = None
@@ -91,7 +91,7 @@ for i_episode in range(n_episode):
     if win is None:
   
         win = vis.line(X=np.arange(i_episode, i_episode+1),
-                       Y=np.array([np.append(total_reward, rr)]),
+                       Y=np.array([np.append(total_reward.cpu().numpy(), rr)]),
                        opts=dict(
                            ylabel='Reward',
                            xlabel='Episode',
@@ -107,7 +107,7 @@ for i_episode in range(n_episode):
                            ['Agent-%d' % i for i in range(n_agents)]))
     else:
         vis.line(X=np.array([np.array(i_episode).repeat(n_agents+1)]),
-                 Y=np.array([np.append(total_reward,rr)]),
+                 Y=np.array([np.append(total_reward.cpu().numpy(),rr)]),
                  win=win,update='append')
     if param is None:
         param = vis.line(X=np.arange(i_episode, i_episode+1),

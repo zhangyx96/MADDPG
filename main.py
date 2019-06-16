@@ -1,9 +1,17 @@
-from madrl_environments.pursuit import MAWaterWorld_mod
-from MADDPG import MADDPG
+import os
+
 import numpy as np
 import torch as th
 import visdom
+import cv2
+
+from madrl_environments.pursuit import MAWaterWorld_mod
+from MADDPG import MADDPG
 from params import scale_reward
+
+# set GPU
+#GPU_id = 3
+#th.cuda.set_device(GPU_id)
 
 # render the scene or not
 e_render = True
@@ -52,7 +60,15 @@ for i_episode in range(n_episode):
     for t in range(max_steps):
         # render every 100 episodes to speed up training
         if i_episode % 100 == 0 and e_render:
-            world.render()
+            save_path = os.getcwd()
+            save_path = os.path.join(save_path,'results',str(i_episode))
+            img = world.render(show = False)
+            if not os.path.isdir(save_path):
+                os.makedirs(save_path)
+            img_name = str(t) + '.jpg'
+            img_path = os.path.join(save_path,img_name)
+            cv2.imwrite(img_path,img)
+            
         obs = obs.type(FloatTensor)
         action = maddpg.select_action(obs).data.cpu()
         obs_, reward, done, _ = world.step(action.numpy())
@@ -123,4 +139,4 @@ for i_episode in range(n_episode):
                  win=param,
                  update='append')
 
-world.close()
+
